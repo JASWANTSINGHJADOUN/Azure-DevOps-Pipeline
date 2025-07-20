@@ -1,0 +1,28 @@
+trigger:
+- main
+
+pool:
+  name: 'Default'   # Change if your agent pool name is different
+  demands:
+    - agent.name -equals agent-vinod
+
+variables:
+  pythonVersion: '3.10'
+
+steps:
+
+- task: PowerShell@2
+  displayName: 'Install Checkov'
+  inputs:
+    targetType: 'inline'
+    script: |
+      python -m pip install --upgrade pip
+      pip install checkov
+
+- task: PowerShell@2
+  displayName: 'Run Checkov scan'
+  inputs:
+    targetType: 'inline'
+    script: |
+      cd "$(Build.SourcesDirectory)"
+      python -m checkov -d .
