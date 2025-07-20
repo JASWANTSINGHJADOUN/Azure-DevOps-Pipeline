@@ -1,0 +1,38 @@
+trigger:
+- main  # ya jo bhi tera default branch hai
+
+pool:
+  vmImage: 'windows-latest'  # ya ubuntu-latest bhi le sakta hai
+
+variables:
+  pythonVersion: '3.10'
+
+steps:
+
+# Step 1: Use desired Python version
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '$(pythonVersion)'
+    addToPath: true
+
+# Step 2: Install Checkov
+- task: PowerShell@2
+  displayName: 'Install Checkov'
+  inputs:
+    targetType: 'inline'
+    script: |
+      Write-Host "✅ Installing Checkov..."
+      python -m pip install --upgrade pip
+      pip install checkov
+
+# Step 3: Run Checkov scan
+- task: PowerShell@2
+  displayName: 'Run Checkov scan on Terraform files'
+  inputs:
+    targetType: 'inline'
+    script: |
+      Write-Host "📁 Changing to source directory: $(Build.SourcesDirectory)"
+      cd "$(Build.SourcesDirectory)"
+
+      Write-Host "🚀 Running Checkov scan..."
+      python -m checkov -d .
